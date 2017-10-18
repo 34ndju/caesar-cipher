@@ -28,27 +28,29 @@ def get_vector_distance_of_letters(eng_dist, sample_dist, shift_guess):
         sum_of_squares += (sample_dist[shift_char(key, shift_guess)] - value)**2
     return math.sqrt(sum_of_squares)
 
+def get_normalized_distribution_from_link(link, ed, shift_amt):
+    letter_distribution = {
+        'a': 0, 'b': 0, 'c': 0, 'd': 0, 'e': 0, 'f': 0, 'g': 0, 'h': 0, 'i': 0, 'j': 0, 'k': 0, 'l': 0, 'm': 0,
+        'n': 0, 'o': 0, 'p': 0, 'q': 0, 'r': 0, 's': 0, 't': 0, 'u': 0, 'v': 0, 'w': 0, 'x': 0, 'y': 0, 'z': 0
+    }
 
-letter_distribution = {
-    'a': 0, 'b': 0, 'c': 0, 'd': 0, 'e': 0, 'f': 0, 'g': 0, 'h': 0, 'i': 0, 'j': 0, 'k': 0, 'l': 0, 'm': 0,
-    'n': 0, 'o': 0, 'p': 0, 'q': 0, 'r': 0, 's': 0, 't': 0, 'u': 0, 'v': 0, 'w': 0, 'x': 0, 'y': 0, 'z': 0
-}
-wiki_link = "https://en.wikipedia.org/wiki/Derrick_Rose"
+    connection = urllib2.urlopen(link)
+    html = connection.read()
+    connection.close()
+    soup = BeautifulSoup(html, 'html5lib')
+    corpus = soup.text
 
-connection = urllib2.urlopen(wiki_link)
-html = connection.read()
-connection.close()
-soup = BeautifulSoup(html, 'html5lib')
-corpus = soup.text
-corpus = shift_string(corpus,9)
+    corpus = shift_string(corpus, shift_amt)
 
-print corpus
+    for symbol in corpus:
+        if symbol.lower() in letter_distribution:
+            letter_distribution[symbol.lower()]+=1
 
-for symbol in corpus:
-    if symbol.lower() in letter_distribution:
-        letter_distribution[symbol.lower()]+=1
+    return ed.normalize_letter_distribution(letter_distribution)
 
-print ed.normalize_letter_distribution(letter_distribution)
+
+
+letter_distribution = get_normalized_distribution_from_link('https://en.wikipedia.org/wiki/University_of_Illinois_at_Urbana%E2%80%93Champaign', ed, 3)
 
 shift_vector_distances = []
 for i in range(26):
@@ -56,5 +58,3 @@ for i in range(26):
 
 print shift_vector_distances
 print shift_vector_distances.index(min(shift_vector_distances))
-
-#print corpus

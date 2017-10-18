@@ -23,6 +23,14 @@ class English_distribution:
 
         return full_distribution
 
+    def get_full_english_distribution_from_corpus(self, corpus):
+        for symbol in corpus:
+            if symbol.lower() in self.letter_distribution:
+                self.letter_distribution[symbol.lower()]+=1
+
+
+        return self.normalize_letter_distribution(self.letter_distribution)
+
     def get_full_english_distribution_from_wikipedia(self):
         connection = urllib2.urlopen(self.wiki_link)
         html = connection.read()
@@ -30,10 +38,4 @@ class English_distribution:
         soup = BeautifulSoup(html, 'html5lib')
 
         corpus = soup.text
-
-        for i in range(0, len(corpus)):
-            if corpus[i].lower() in self.letter_distribution:
-                self.letter_distribution[corpus[i].lower()]+=1
-
-
-        return self.normalize_letter_distribution(self.letter_distribution)
+        return self.get_full_english_distribution_from_corpus(corpus = soup.text)
